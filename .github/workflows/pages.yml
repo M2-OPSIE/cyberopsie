@@ -24,10 +24,13 @@ jobs:
         with:
           node-version: '20'
           cache: yarn
+
+      # ⚡ Activer Corepack et la bonne version de Yarn
       - name: Enable Corepack
         run: corepack enable
       - name: Use correct Yarn version
         run: corepack prepare yarn@3.6.1 --activate
+
       - id: configurepages
         uses: actions/configure-pages@v5
       - name: Restore cache
@@ -37,12 +40,14 @@ jobs:
           key: ${{ runner.os }}-nextjs-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
           restore-keys: |
             ${{ runner.os }}-nextjs-${{ hashFiles('**/yarn.lock') }}-
+
       - run: yarn
       - run: yarn build
         env:
           EXPORT: 1
           UNOPTIMIZED: 1
           BASE_PATH: ${{ steps.configurepages.outputs.base_path }}
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: ./out
