@@ -25,7 +25,7 @@ jobs:
       # 2️⃣ Setup Node.js (pas de cache yarn ici)
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '18'
 
       # 3️⃣ Activer Corepack et utiliser Yarn 3.6.1
       - name: Enable Corepack
