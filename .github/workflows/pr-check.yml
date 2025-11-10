@@ -1,0 +1,74 @@
+name: Pull Request Check
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  build:
+    name: Build and Lint
+    runs-on: ubuntu-latest
+    
+    steps:
+      # 1️⃣ Récupération du code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2️⃣ Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      # 3️⃣ Activer Corepack et utiliser Yarn 3.6.1
+      - name: Enable Corepack
+        run: corepack enable
+      
+      - name: Prepare Yarn 3.6.1
+        run: corepack prepare yarn@3.6.1 --activate
+      
+      - name: Verify Yarn version
+        run: yarn --version
+
+      # 4️⃣ Restore Next.js cache
+      - name: Restore Next.js cache
+        uses: actions/cache@v4
+        with:
+          path: .next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('**/yarn.lock') }}-
+
+      # 5️⃣ Installer les dépendances
+      - name: Install dependencies
+        run: yarn install
+
+      # 6️⃣ Linting
+      - name: Run linter
+        run: yarn lint
+
+      # 7️⃣ Build
+      - name: Build project
+        run: yarn build
+        env:
+          EXPORT: 1
+          UNOPTIMIZED: 1
+
+      # 8️⃣ Commentaire de succès (optionnel)
+      - name: Comment PR
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '✅ Build réussi ! Cette PR peut être mergée.'
+            })
+
