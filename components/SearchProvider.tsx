@@ -50,13 +50,16 @@ export const SearchProvider = ({
     },
   ]
 
-  const config = {
-    ...searchConfig,
-    kbarConfig: {
-      ...searchConfig.kbarConfig,
-      defaultActions,
-    },
+  if (searchConfig && searchConfig.provider === 'kbar') {
+    const config = {
+      ...searchConfig,
+      kbarConfig: {
+        ...searchConfig.kbarConfig,
+        defaultActions,
+      },
+    }
+    return <PlinySearchProvider searchConfig={config}>{children}</PlinySearchProvider>
   }
 
-  return <PlinySearchProvider searchConfig={config}>{children}</PlinySearchProvider>
+  return <PlinySearchProvider searchConfig={searchConfig}>{children}</PlinySearchProvider>
 }
